@@ -1,0 +1,82 @@
+<div class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+    <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" aria-controls="offcanvas">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas" aria-labelledby="offcanvasLabel">
+      <div class="offcanvas-header">
+        <h5 class="offcanvas-title">メニュー</h5>
+        <style>
+        #btn {
+          font-size: 30px;
+        }
+        </style>
+        <button type="button" id="btn" class="btn-close btn-lg text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
+
+      </div>
+      <div class="offcanvas-body">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 list-unstyled">
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            通知について
+          </button>
+          <li>
+            <a class="nav-link active" aria-disabled="page" href="/"><%= language.new_task_view %></a>
+          </li>
+          <li>
+            <a class="nav-link active" aria-disabled="page" href="/default"><%= language.oldest_tasks %></a>
+          </li>
+          <li>
+            <a class="nav-link active" aria-disabled="page" href="/priority"><%= language.priority_tasks %></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-disabled="page" href="signup"><%= language.menu_signup %></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-disabled="page" href="login"><%= language.menu_login %></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" aria-disabled="page" href="logout"><%= language.menu_logout %></a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">通知について</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        タスクを追加したときに通知を送信します。
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">いいえ</button>
+        <button id="notification" type="button" class="btn btn-primary">はい</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById("notification").addEventListener("click", function(){
+    if ("Notification" in window) {
+      Notification.requestPermission().then(function(permission) {
+        if (permission === "granted") {
+          console.log("通知が許可されました");
+        } else if (permission === "denied") {
+          console.log("通知が拒否されました");
+        }
+      });
+    } else {
+      console.log("このブラウザは通知をサポートしていません");
+    }
+  });
+</script>

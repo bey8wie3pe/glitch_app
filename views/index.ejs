@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html data-bs-theme="">
+<head>
+  <meta charset="utf-8">
+  <title><%= language.title %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script> -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</head>
+<body>
+
+  <%- include('main_header') %>
+  
+
+<style>
+  .light-dropdown,
+  .light-dropdown:hover {
+    background-color: #ffffff; /* ライト背景色 */
+    color: #000000; /* ダークテキスト色 */
+  }
+
+  .dark-dropdown,
+  .dark-dropdown:hover {
+    background-color: #000000; /* ダーク背景色 */
+    color: #ffffff; /* ライトテキスト色 */
+  }
+
+  .light-dropdown .dropdown-menu {
+    background-color: #ffffff; /* ライト背景色 */
+    color: #000000; /* ダークテキスト色 */
+  }
+
+  .dark-dropdown .dropdown-menu {
+    background-color: #000000; /* ダーク背景色 */
+    color: #ffffff; /* ライトテキスト色 */
+  }
+</style>
+
+
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle light-dropdown" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+    テーマを選択
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <li><button class="dropdown-item" onclick="changeMode('light')">ライトモード</button></li>
+    <li><button class="dropdown-item" onclick="changeMode('dark')">ダークモード</button></li>
+  </ul>
+</div>
+<style>
+  /* 通常のスタイル */
+  .dropdown {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+  
+  /* 大きな画面のスタイル */
+  @media (min-width: 992px) {
+    .dropdown {
+      position: absolute;
+      top: 10px;
+      right: 10px; /* 右側に移動 */
+      left: auto; /* 左側の位置を解除 */
+    }
+  }
+  </style>
+  
+  
+  
+  <div class="container mt-4">
+    <h1 class="mb-4"><%= language.title %></h1>
+    <div class="card mt-4">
+      <div class="card-body">
+
+        <h2 id="" class="card-title mb-4"><%= language.new_task %></h2>
+        <form id="task-form" action="/add" method="post" onsubmit="return validateForm();">
+          <div class="form-group">
+            <input id="taskNameInput" class="form-control" type="text" name="taskName" placeholder="<%= language.new_task_name %>" required maxlength="150">
+          </div>
+          <input type="hidden" id="selected-value" name="selected-value">
+
+          <br>
+          <label for="deadline"><%= language.new_task_deadline %></label>
+          <input type="date" name="deadline" id="date">
+          <p><%= language.priority_enter %></p>
+
+          <div class="d-flex justify-content-between">
+            <div>
+              <button id="low" name="low-priority" type="button" class="btn btn-secondary btn-lg"><%= language.priority_low %></button>
+            </div>
+            <div>
+              <button id="medium" name="medium-priority" type="button" class="btn btn-secondary btn-lg"><%= language.priority_medium %></button>
+            </div>
+            <div>
+              <button id="high" name="high-priority" type="button" class="btn btn-secondary btn-lg"><%= language.priority_high %></button>
+            </div>
+          </div>
+          <button class="btn btn-primary"><%= language.add_btn %></button>
+        </form>
+
+      </div>
+    </div>
+    
+    <div class="card mt-4">
+      <div class="card-body">
+        <h2 class="card-title mb-4"><%= language.task_list %></h2>
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th><%= language.task_name %></th>
+                <th><%= language.task_add_date %></th>
+                <th><%= language.new_task_deadline %></th>
+                <th><%= language.task_priority %></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% for(let i = 0; i < tasks.length; i++) { %>
+                <tr>
+                  <td><%= tasks[i].task_name %></td>
+                  <td><%= new Date(tasks[i].created_at).toLocaleString() %></td>
+                  <td><%= new Date(tasks[i].deadline).toLocaleString()  %></td>
+                  <td>
+                    <% switch (tasks[i].priority) {
+                         case 1:
+                           %>
+                           <%= language.priority_low %>
+                           <%
+                           break;
+                         case 2:
+                           %>
+                           <%= language.priority_medium %>
+                           <%
+                           break;
+                         case 3:
+                           %>
+                           <%= language.priority_high %>
+                           <%
+                           break;
+                       } %>
+                  </td>
+                  <td>
+                    <form action="/delete" method="post">
+                      <input type="hidden" name="taskId" value="<%= tasks[i].task_id %>">
+                      <button class="btn btn-danger"><%= language.task_delete %></button>
+                    </form>
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/push.js/1.0.12/push.min.js"></script> -->
+  <script>
+
+    
+function changeMode(mode) {
+  const htmlElement = document.querySelector('html');
+  htmlElement.setAttribute('data-bs-theme', mode);
+  const dropdownButton = document.getElementById('dropdownMenuButton');
+  const dropdownMenu = document.querySelector('.dropdown-menu');
+
+  if (mode === 'light') {
+    dropdownButton.classList.remove('dark-dropdown');
+    dropdownButton.classList.add('light-dropdown');
+
+    dropdownMenu.classList.remove('dark-dropdown');
+    dropdownMenu.classList.add('light-dropdown');
+  } else if (mode === 'dark') {
+    dropdownButton.classList.remove('light-dropdown');
+    dropdownButton.classList.add('dark-dropdown');
+
+    dropdownMenu.classList.remove('light-dropdown');
+    dropdownMenu.classList.add('dark-dropdown');
+  }
+}
+
+
+
+
+
+function sendNotification() {
+  let task_name = document.getElementById("taskNameInput").value;
+  let task_deadline = document.getElementById("date").value;
+  let task_priority = document.getElementById("selected-value").value;
+  task_priority--;
+  let priority = ["小","中","大"];
+
+  // ブラウザが通知をサポートしているか確認
+  if ('Notification' in window) {
+    // ユーザの許可を取得する
+    Notification.requestPermission().then(function (permission) {
+      if (permission === "granted") {
+        // 通知を作成
+        let notification = new Notification("タスク追加のお知らせ", {
+          body: `タスク名:${task_name}\nタスクの期限日:${task_deadline}\nタスクの優先度:${priority[task_priority]}`,
+          icon: "/icon/notification.png"
+        });
+
+        // 通知がクリックされたときの処理
+        notification.onclick = function () {
+          window.open("https://todo-app.f5.si", "_blank"); 
+        };
+
+        // 通知が消えるまでの時間（ミリ秒）
+        setTimeout(function () {
+          notification.close();
+        }, 5000);
+      }
+    });
+  }
+}
+
+
+
+
+    function validateForm(event) {
+      event.preventDefault(); // フォームが送信されないようにする
+
+      const taskName = document.getElementById("taskNameInput").value.trim();
+      const taskDate = document.getElementById("date").value;
+
+      if (taskName === "") {
+        alert("<%= language.task_name_error %>");
+        return;
+      }
+      if (!taskDate) {
+        alert("<%= language.task_deadline_error %>");
+        return;
+      }
+      const prioritySelected = document.querySelector('button.btn-info');
+      if (!prioritySelected) {
+        alert("<%= language.task_priority_error %>");
+        return;
+      }
+
+
+
+      // すべてのバリデーションに合格したらフォームを送信する
+      sendNotification();
+      event.target.submit();
+    }
+
+// フォーム送信イベントのイベントリスナーを追加する
+const taskForm = document.querySelector('#task-form');
+taskForm.addEventListener('submit', validateForm);
+
+  
+
+    const textarea = document.getElementById("taskNameInput");
+    const counter = document.createElement("span");
+    counter.innerHTML = "0 <%= language.task_text_limit %>";
+    textarea.parentNode.appendChild(counter);
+
+    textarea.addEventListener("input", () => {
+      const count = textarea.value.length;
+      counter.innerHTML = `${count}<%= language.task_text_limit %>`;
+      if (count === 150) {
+        textarea.value = textarea.value.slice(0, 150);
+        counter.innerHTML = "<%= language.task_text_alert %>";
+      }
+    });
+
+
+
+
+    const lowPriorityBtn = document.querySelector('button[name="low-priority"]');
+    const mediumPriorityBtn = document.querySelector('button[name="medium-priority"]');
+    const highPriorityBtn = document.querySelector('button[name="high-priority"]');
+    const selectedValueInput = document.querySelector('#selected-value');
+
+    lowPriorityBtn.addEventListener('click', () => {
+      selectedValueInput.value = '1';
+      lowPriorityBtn.classList.add('btn-info');
+      mediumPriorityBtn.classList.remove('btn-info');
+      highPriorityBtn.classList.remove('btn-info');
+    });
+
+    mediumPriorityBtn.addEventListener('click', () => {
+      selectedValueInput.value = '2';
+      lowPriorityBtn.classList.remove('btn-info');
+      mediumPriorityBtn.classList.add('btn-info');
+      highPriorityBtn.classList.remove('btn-info');
+    });
+
+    highPriorityBtn.addEventListener('click', () => {
+      selectedValueInput.value = '3';
+      lowPriorityBtn.classList.remove('btn-info');
+      mediumPriorityBtn.classList.remove('btn-info');
+      highPriorityBtn.classList.add('btn-info');
+    });
+
+
+
+  </script>
+
+
+
+
+
+
+
+
+</body>
+</html>

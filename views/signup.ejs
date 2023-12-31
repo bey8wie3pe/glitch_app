@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= language.signup_title %></title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+    /* アカウント作成ボタン */
+    button[type="submit"] {
+      font-size: 16px;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mt-5 mb-4 text-center"><%= language.signup_title %></h1>
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <a href="/login" class="d-block mb-4"><%= language.account_created %></a>
+        <form action="/signup" method="post">
+          <div class="form-group">
+            <label for="username"><%= language.signup_user_name %></label>
+            <input type="text" class="form-control" id="user_name" name="user_name" required>
+          </div>
+          <div class="form-group">
+            <label for="password"><%= language.signup_password %></label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+          <button type="submit" id="signup" class="btn btn-primary"><%= language.signup_create_account %></button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+  // function signup() {
+  //   const user_name = document.getElementById('user_name').value;
+  //   const password = document.getElementById('password').value;
+  
+  //   fetch('/signup', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json'
+  //     },
+  //     body: JSON.stringify({ user_name, password })
+  //   })
+  //   .then(response => {
+  //     if (response.redirected) {
+  //       window.location.href = "/login"; // リダイレクト先のURLに遷移
+  //     }
+  //   })
+  //   .catch(error => {
+  //     console.error('エラー:', error);
+  //   });
+  // }
+  
+  // const signupButton = document.getElementById("signup");
+  // signupButton.addEventListener("click", function() {
+  //   signup();
+  // });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+</body>
+</html>
