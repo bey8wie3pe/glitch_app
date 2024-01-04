@@ -1,36 +1,49 @@
 const sqlite3 = require('sqlite3').verbose();
-require('dotenv').config();
 const salt = 15;
 const ejs = require('ejs');
+const path = require('path');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const express = require("express");
 const app = express();
-const path = require("path")
 require('dotenv').config();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 const port = process.env.PORT || 3000;
 const session = require('express-session');
 
+const fs = require('fs');
+
+const directoryPath = './.db';
+
+// ディレクトリが存在しない場合、作成する
+if (!fs.existsSync(directoryPath)) {
+    fs.mkdirSync(directoryPath);
+    console.log(`'${directoryPath}'ディレクトリが作成されました。`);
+} else {
+    console.log(`'${directoryPath}'ディレクトリは既に存在します。`);
+}
+
+
+
 const SQLiteStore = require('connect-sqlite3')(session);
 
-// SQLiteデータベースの設定
-const sessionStore = new SQLiteStore({
-  db: './db/.sessions.db', // .sessions.db ファイルへのパス
-  concurrentDB: true,
-  autoVacuum: true,
-});
 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  store: new SQLiteStore({
+    db: 'sessions.db', // SQLite3データベースのファイル名
+    dir: './.db/',         // データベースファイルの保存場所
+    table: 'sessions', // データベース内のセッションテーブル名
+    concurrentDB: true, // 複数のリクエストで同時にデータベースへのアクセスを許可
+  }),
+  secret: process.env.SESSION_SECRET, // セッションの秘密鍵
   resave: false,
   saveUninitialized: true,
-  store: sessionStore,
+  cookie: { maxAge: 7 * 24 * 60 * 60 * 1000 }, // セッションの有効期限を設定(例: 7日間)
 }));
 
-const dbPath = path.join(__dirname, './db/.todos.db'); // .todos.dbを隠しファイルにする
-const db = new sqlite3.Database(dbPath);
+
+const db = new sqlite3.Database('./.db/todos.db');
 
 // CREATE TABLEのSQLクエリ
 const createTableQuery = `
@@ -43,7 +56,7 @@ const createTableQuery = `
     task_id TEXT NOT NULL PRIMARY KEY
   )
 `;
-
+console.log(new Date());
 // テーブルを作成
 db.serialize(() => {
   db.run(createTableQuery, (err) => {
@@ -59,7 +72,7 @@ const users_table_query = `
   CREATE TABLE IF NOT EXISTS users (
     user_name TEXT NOT NULL,
     user_password TEXT NOT NULL,
-    user_id TEXT DEFAULT NULL
+    user_id TEXT NOT NULL
   )
 `;
 
@@ -75,14 +88,13 @@ db.serialize(() => {
 
 
 
-
-
 const get = require("./routes/get.js");
 
 app.use("/", get);
 // app.use("/default", get);
 app.use("/signup", get);
 app.use("/login", get);
+app.use("/logout", get);
 // app.use("/reset_password", get);
 
 
@@ -120,12 +132,13 @@ app.post("/signup", (req, res) => {
       if (err) {
         console.error('ユーザー情報の保存中にエラーが発生しました:', err.message);
       } else {
-        res.send("作成完了");
+        res.redirect("/");
       }
     }
   );
 });
 
+//タスクの追加
 app.post('/add', (req, res) => {
   const task_name = req.body.taskName;
   const userId = req.session.user_id;
@@ -137,6 +150,7 @@ app.post('/add', (req, res) => {
     "INSERT INTO tasks (task_name, user_id, priority, deadline, task_id) VALUES (?, ?, ?, ?, ?)",
     [task_name, userId, priority, deadline, UUID],
   )
+  res.redirect("/");
 });
 
 
@@ -144,7 +158,7 @@ app.post('/add', (req, res) => {
 app.post('/delete', (req, res) => {
   const taskId = req.body.taskId;
   if(!taskId){
-    res.status(500);
+    res.status(500).send("エラーが発生したと思います");
   }
   console.log(taskId);
   if (!req.session.user_id) {

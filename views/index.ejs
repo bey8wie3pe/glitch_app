@@ -200,16 +200,6 @@ function sendNotification() {
           body: `タスク名:${task_name}\nタスクの期限日:${task_deadline}\nタスクの優先度:${priority[task_priority]}`,
           icon: "/icon/notification.png"
         });
-
-        // 通知がクリックされたときの処理
-        notification.onclick = function () {
-          window.open("https://todo-app.f5.si", "_blank"); 
-        };
-
-        // 通知が消えるまでの時間（ミリ秒）
-        setTimeout(function () {
-          notification.close();
-        }, 5000);
       }
     });
   }
@@ -297,13 +287,6 @@ taskForm.addEventListener('submit', validateForm);
 
 
   </script>
-
-
-
-
-
-
-
 
 </body>
 </html>
